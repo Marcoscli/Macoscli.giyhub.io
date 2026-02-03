@@ -33,13 +33,56 @@
             margin-bottom: 30px;
             font-weight: bold;
         }
+        .music-player {
+            background: linear-gradient(145deg, #fce4ec, #f8bbd9);
+            border: 3px solid #f48fb1;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px 0;
+            box-shadow: 0 8px 20px rgba(244, 143, 177, 0.3);
+        }
+        .music-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .music-btn {
+            background: linear-gradient(135deg, #ff4081, #e91e63);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .music-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(255, 64, 129, 0.5);
+        }
+        .volume-control {
+            width: 100px;
+            margin: 0 10px;
+        }
+        .song-title {
+            font-size: 1.2em;
+            color: #c2185b;
+            font-weight: bold;
+            margin-top: 10px;
+        }
         .photo-container {
             display: flex;
             flex-direction: column;
             gap: 25px;
             margin: 30px 0;
         }
-        .photo-placeholder {
+        .photo-item {
             background: linear-gradient(145deg, #fce4ec, #f8bbd9);
             border: 3px solid #f48fb1;
             border-radius: 15px;
@@ -52,10 +95,17 @@
             font-weight: bold;
             box-shadow: 0 8px 20px rgba(244, 143, 177, 0.3);
             transition: transform 0.3s, box-shadow 0.3s;
+            overflow: hidden;
         }
-        .photo-placeholder:hover {
+        .photo-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 12px 25px rgba(244, 143, 177, 0.4);
+        }
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
         }
         .message {
             background: linear-gradient(145deg, #f8bbd9, #f48fb1);
@@ -118,18 +168,56 @@
             font-size: 1.2em;
             font-weight: bold;
         }
+        .photo-placeholder-text {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
     <h1>Hey Mitchell ❤️</h1>
     <p class="intro">I made something to make you smile</p>
     
+    <!-- Music Player Section -->
+    <div class="music-player">
+        <h3>Our Song 💖</h3>
+        <div class="music-controls">
+            <button class="music-btn" onclick="playPause()" id="playBtn">▶️</button>
+            <input type="range" class="volume-control" min="0" max="1" step="0.1" value="0.5" id="volumeControl" onchange="changeVolume()">
+            <button class="music-btn" onclick="stopMusic()">⏹️</button>
+        </div>
+        <div class="song-title" id="songTitle">Loading song...</div>
+        <audio id="bgMusic" loop>
+            <source src="https://assets.mixkit.co/music/preview/mixkit-valentine-521.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+    
     <h2>lemme be the first one to say this...</h2>
     
     <div class="photo-container">
-        <div class="photo-placeholder">Photo 1</div>
-        <div class="photo-placeholder">Photo 2</div>
-        <div class="photo-placeholder">Photo 3</div>
+        <!-- Photo 1 -->
+        <div class="photo-item">
+            <img src="https://marcoscli.github.io/Macoscli.giyhub.io/assets/images/photo1.jpg" 
+                 alt="Beautiful memory with Mitchell"
+                 onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'photo-placeholder-text\'>Photo 1</div>'">
+        </div>
+        
+        <!-- Photo 2 -->
+        <div class="photo-item">
+            <img src="https://marcoscli.github.io/Macoscli.giyhub.io/assets/images/photo2.jpg" 
+                 alt="Special moment with Mitchell"
+                 onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'photo-placeholder-text\'>Photo 2</div>'">
+        </div>
+        
+        <!-- Photo 3 -->
+        <div class="photo-item">
+            <img src="https://marcoscli.github.io/Macoscli.giyhub.io/assets/images/photo3.jpg" 
+                 alt="Happy time with Mitchell"
+                 onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'photo-placeholder-text\'>Photo 3</div>'">
+        </div>
     </div>
     
     <div class="message">
@@ -155,12 +243,64 @@
     </div>
     
     <script>
+        // Music Player Functions
+        const bgMusic = document.getElementById('bgMusic');
+        const playBtn = document.getElementById('playBtn');
+        const volumeControl = document.getElementById('volumeControl');
+        const songTitle = document.getElementById('songTitle');
+        
+        // Romantic song suggestions (you can replace with your own)
+        const romanticSongs = [
+            {title: "Perfect - Ed Sheeran", url: "https://assets.mixkit.co/music/preview/mixkit-valentine-521.mp3"},
+            {title: "All of Me - John Legend", url: "https://assets.mixkit.co/music/preview/mixkit-romantic-announcement-521.mp3"},
+            {title: "Can't Help Falling in Love", url: "https://assets.mixkit.co/music/preview/mixkit-sunny-love-song-52.mp3"}
+        ];
+        
+        // Set a random romantic song
+        function setRandomSong() {
+            const randomSong = romanticSongs[Math.floor(Math.random() * romanticSongs.length)];
+            bgMusic.src = randomSong.url;
+            songTitle.textContent = randomSong.title;
+        }
+        
+        function playPause() {
+            if (bgMusic.paused) {
+                bgMusic.play();
+                playBtn.innerHTML = "⏸️";
+                playBtn.style.background = "linear-gradient(135deg, #e91e63, #ff4081)";
+            } else {
+                bgMusic.pause();
+                playBtn.innerHTML = "▶️";
+                playBtn.style.background = "linear-gradient(135deg, #ff4081, #e91e63)";
+            }
+        }
+        
+        function stopMusic() {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+            playBtn.innerHTML = "▶️";
+            playBtn.style.background = "linear-gradient(135deg, #ff4081, #e91e63)";
+        }
+        
+        function changeVolume() {
+            bgMusic.volume = volumeControl.value;
+        }
+        
+        // Valentine Response Function
         function showResponse() {
             const response = document.getElementById('response');
             const question = document.querySelector('.valentine-question');
             
             response.style.display = 'block';
             question.style.display = 'none';
+            
+            // Play romantic music automatically when she says yes
+            if (bgMusic.paused) {
+                setRandomSong();
+                bgMusic.play();
+                playBtn.innerHTML = "⏸️";
+                playBtn.style.background = "linear-gradient(135deg, #e91e63, #ff4081)";
+            }
             
             // Scroll to the response
             response.scrollIntoView({ behavior: 'smooth' });
@@ -198,6 +338,24 @@
                 }, i * 200);
             }
         }
+        
+        // Check if images exist and show appropriate message
+        window.addEventListener('load', function() {
+            const images = document.querySelectorAll('.photo-item img');
+            images.forEach(img => {
+                if (img.naturalHeight === 0) {
+                    img.style.display = 'none';
+                    img.parentElement.innerHTML = '<div class="photo-placeholder-text">' + 
+                        (img.alt.includes('1') ? 'Photo 1' : 
+                         img.alt.includes('2') ? 'Photo 2' : 'Photo 3') + 
+                        '</div>';
+                }
+            });
+            
+            // Initialize music player
+            setRandomSong();
+            bgMusic.volume = 0.5;
+        });
     </script>
 </body>
-                                             </html>
+    </html>
